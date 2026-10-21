@@ -41,6 +41,10 @@ def canonical(value):
 
 def load(data):
     try:
+        if isinstance(data,(bytes,bytearray)):
+            data=data.decode('utf-8',errors='strict')
+        if isinstance(data,str) and data.startswith('\ufeff'):
+            raise Failure('JSON BOM is forbidden')
         value=json.loads(data,object_pairs_hook=_pairs)
         canonical(value)
         return value

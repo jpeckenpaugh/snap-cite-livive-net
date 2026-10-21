@@ -19,6 +19,33 @@ class ContractTests(unittest.TestCase):
     def test_reject_ambiguous_json(self):
         for raw in [b'{"a":1,"a":2}',b'NaN',b'1.0',b'9007199254740992',b'"\\ud800"',b'{"\\u00e9":1}']:
             with self.subTest(raw=raw),self.assertRaises(Failure):load(raw)
+    def test_json_encoding_contract(self):
+        text='{"a":"é"}'
+        self.assertEqual(load(text.encode('utf-8')),{'a':'é'})
+        self.assertEqual(load(text),{'a':'é'})
+        for encoding in ('utf-16','utf-16-le','utf-16-be','utf-32','utf-32-le','utf-32-be','utf-8-sig'):
+            with self.subTest(encoding=encoding),self.assertRaises(Failure):
+                load(text.encode(encoding))
+        for raw in (b'"\xff"',b'"\xc0\xaf"','\ufeff'+text):
+            with self.subTest(raw=raw),self.assertRaises(Failure):load(raw)
+
+    def test_replay_rejects_non_utf8_json_and_bom(self):
+        import shutil
+        original=ROOT/'staging/citations/21c499e5932ab745d3dcdd671ed49eb3fc3b4b1e7113ff06be5bb823605bc815'
+        trust='1776068965d523ed851dc5feed880a350694853982b15f480fbe422e69396ea8'
+        with tempfile.TemporaryDirectory() as d:
+            bundle=Path(d)/'bundle';shutil.copytree(original,bundle)
+            self.assertEqual(replay(bundle,trust)['overall'],'green')
+            for path in sorted(bundle.rglob('*.json')):
+                raw=path.read_bytes();text=raw.decode('utf-8')
+                for encoding in ('utf-16','utf-16-le','utf-16-be','utf-32','utf-32-le','utf-32-be','utf-8-sig'):
+                    with self.subTest(path=str(path.relative_to(bundle)),encoding=encoding):
+                        path.write_bytes(text.encode(encoding))
+                        try:
+                            with self.assertRaises(Failure):replay(bundle,trust)
+                        finally:path.write_bytes(raw)
+            self.assertEqual(replay(bundle,trust)['overall'],'green')
+
     def test_inherited_evidence_and_determinism(self):
         p=self.run_packet(); self.assertEqual(p,self.run_packet())
         f=p['findings'][0]; self.assertEqual(f['declaring_entity'],'Instance')
