@@ -1,0 +1,1 @@
+{"Version":"authored-development-example","Classes":[{"Name":"Instance","Superclass":"<<<ROOT>>>","Members":[{"Name":"Name","MemberType":"Property","ValueType":{"Name":"string","Category":"Primitive"}}]},{"Name":"Part","Superclass":"Instance","Members":[]}],"Enums":[]}

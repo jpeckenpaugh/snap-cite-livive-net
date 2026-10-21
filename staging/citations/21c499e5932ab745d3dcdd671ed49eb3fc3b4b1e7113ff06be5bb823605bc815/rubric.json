@@ -1,0 +1,1 @@
+{"version":"0.1-dev","green":"Exact-case entity presence only","yellow":"Deprecated tag on lookup path or result; requires human policy","red":"Exact-case entity absent; no override","coverage":"Any missing or unsupported required claim prevents overall green","execution_error":"Exit 2; no verdict","development":"Always advisory; exit 1; never freeze qualified"}

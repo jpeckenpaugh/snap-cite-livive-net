@@ -1,0 +1,82 @@
+SNAP CITE — DEVELOPMENT / NOT FREEZE QUALIFIED
+Citation: 21c499e5932ab745d3dcdd671ed49eb3fc3b4b1e7113ff06be5bb823605bc815
+Touchstone: 1776068965d523ed851dc5feed880a350694853982b15f480fbe422e69396ea8
+Verdict: green; CI gate: blocked-development
+Exact-case presence only; explicit assertions; no runtime, access, typing or whole-program proof.
+Offline replay: python -m snapcite replay BUNDLE --trust 1776068965d523ed851dc5feed880a350694853982b15f480fbe422e69396ea8
+Resolver reference (availability not implied): https://sc.livive.net/staging/citations/21c499e5932ab745d3dcdd671ed49eb3fc3b4b1e7113ff06be5bb823605bc815/manifest.json
+
+Complete inline evidence packet:
+{
+  "ci_gate": "blocked-development",
+  "citation": "21c499e5932ab745d3dcdd671ed49eb3fc3b4b1e7113ff06be5bb823605bc815",
+  "coverage": {
+    "complete": true,
+    "missing": [],
+    "undeclared": []
+  },
+  "engine": "0.1.0",
+  "findings": [
+    {
+      "declaring_entity": "Instance",
+      "evidence": [
+        {
+          "pointer": "/Classes/1",
+          "record": {
+            "Name": "Part",
+            "Superclass": "Instance"
+          }
+        },
+        {
+          "pointer": "/Classes/0",
+          "record": {
+            "Name": "Instance",
+            "Superclass": "<<<ROOT>>>"
+          }
+        },
+        {
+          "pointer": "/Classes/0/Members/0",
+          "record": {
+            "MemberType": "Property",
+            "Name": "Name",
+            "ValueType": {
+              "Category": "Primitive",
+              "Name": "string"
+            }
+          }
+        }
+      ],
+      "id": "name_presence",
+      "reason": "exact-case presence",
+      "searched": [
+        "Part",
+        "Instance"
+      ],
+      "snippet": "part.Name = \"Example\"",
+      "source_span": {
+        "end": 135,
+        "sha256": "8e50d34ec6010355b0d8221247dbb9187f94486bb618737f658e6b0daaac69a4",
+        "start": 114
+      },
+      "status": "green"
+    }
+  ],
+  "limitations": [
+    "Snapshot not human-selected",
+    "No qualified 3/2/1 corpus or touchstone self-suite",
+    "Yellow policy unapproved",
+    "Independent review and pilot pending"
+  ],
+  "overall": "green",
+  "qualification": "development-not-qualified",
+  "scope": "Exact-case presence only; explicit assertions; no runtime, access, typing or whole-program proof.",
+  "snapshot_sha256": "0b160b73f19d10db997f9fdb9eb370e17de22f747db24dc0347fa5fe83098b93",
+  "source": {
+    "commit": "acc3e098da371e935e0a7ce0f039f76f17e4fd1d",
+    "path": "examples/presence.luau",
+    "repository": "https://github.com/jpeckenpaugh/snap-cite-livive-net",
+    "sha256": "74dca6a439775b51ff97a0409331b413c8f0146d2a9239ea87044ccf9bec4185"
+  },
+  "touchstone": "1776068965d523ed851dc5feed880a350694853982b15f480fbe422e69396ea8",
+  "version": "0.1-dev"
+}
