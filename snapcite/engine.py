@@ -165,4 +165,4 @@ def report(packet):
             +'\nVerdict: '+packet['overall']+'; CI gate: '+packet['ci_gate']
             +'\n'+packet['scope']+'\nOffline replay: python -m snapcite replay BUNDLE --trust '+packet['touchstone']
             +'\nResolver reference (availability not implied): https://sc.livive.net/staging/citations/'+packet['citation']+'/manifest.json'
-            +'\n\nComplete inline evidence packet:\n'+json.dumps(packet,ensure_ascii=False,indent=2)+'\n')
+            +'\n\nComplete inline evidence packet:\n'+json.dumps(packet,ensure_ascii=False,indent=2,sort_keys=True)+'\n')
