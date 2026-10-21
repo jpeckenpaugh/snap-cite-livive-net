@@ -71,6 +71,6 @@ def main():
             print('Bundle: '+str(out))
         print('Verdict: '+p['overall']+'; development CI gate blocked')
         return 1
-    except (Failure,OSError,subprocess.CalledProcessError,ValueError,KeyError,TypeError) as e:
+    except (Failure,OSError,subprocess.CalledProcessError,ValueError,KeyError,TypeError,importlib.metadata.PackageNotFoundError) as e:
         print('Execution failure (no verdict): '+str(e),file=sys.stderr); return 2
 if __name__=='__main__': sys.exit(main())

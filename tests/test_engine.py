@@ -78,6 +78,26 @@ class ContractTests(unittest.TestCase):
         s=Snapshot(canonical(x))
         self.assertEqual(s.query({'id':'c','op':'class_exists','class':'Part','span':{}})['status'],'green')
         self.assertEqual(s.query({'id':'e','op':'enum_item_exists','enum':'Material','item':'Plastic','span':{}})['status'],'green')
+    def test_cli_source_commit_binding_and_exit_codes(self):
+        import subprocess,sys,os
+        with tempfile.TemporaryDirectory() as d:
+            b=Path(d);repo=b/'repo';repo.mkdir()
+            def git(*args):
+                return subprocess.check_output(['git','-C',str(repo),*args],stderr=subprocess.DEVNULL).decode().strip()
+            git('init');(repo/'example.luau').write_bytes(self.source);git('add','example.luau')
+            git('-c','user.name=Test','-c','user.email=test@example.invalid','commit','-m','source')
+            self.m['source']['commit']=git('rev-parse','HEAD')
+            for n,v in [('manifest',self.m),('touchstone',self.t)]: (b/(n+'.json')).write_bytes(canonical(v))
+            (b/'snapshot.json').write_bytes(self.raw)
+            cmd=[sys.executable,'-m','snapcite','build','--manifest',str(b/'manifest.json'),'--touchstone',str(b/'touchstone.json'),'--snapshot',str(b/'snapshot.json'),'--repo',str(repo),'--out',str(b/'out'),'--trust',digest(self.t),'--pdf']
+            run=subprocess.run(cmd,capture_output=True)
+            self.assertEqual(run.returncode,1,run.stderr)
+            bundle=b/'out'/digest(self.m)
+            check=[sys.executable,'-m','snapcite','replay',str(bundle),'--trust',digest(self.t)]
+            self.assertEqual(subprocess.run(check,capture_output=True).returncode,1)
+            self.assertEqual(subprocess.run(cmd,capture_output=True).returncode,2) # immutable output
+            (bundle/'source.bin').write_bytes(b'changed')
+            self.assertEqual(subprocess.run(check,capture_output=True).returncode,2)
     def test_offline_bundle_replay_and_tamper(self):
         from snapcite.engine import report
         import shutil
