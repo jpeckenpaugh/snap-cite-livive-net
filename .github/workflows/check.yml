@@ -1,0 +1,23 @@
+name: Offline protocol checks
+on: [push, pull_request]
+jobs:
+  protocol:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.13'
+      - run: python -m pip install -r requirements.txt
+      - run: python -m unittest discover -s tests -v
+      - name: Replay staging bundles (development exit 1 expected)
+        shell: bash
+        run: |
+          for bundle in staging/citations/*; do
+            trust=$(python -c 'import json,sys; print(json.load(open(sys.argv[1]))["touchstone"])' "$bundle/manifest.json")
+            set +e
+            python -m snapcite replay "$bundle" --trust "$trust"
+            result=$?
+            set -e
+            test "$result" = 1
+          done
