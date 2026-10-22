@@ -1,0 +1,50 @@
+{
+  "schema_version": "intake-1",
+  "fixture_id": null,
+  "origin": "genuine-recorded-output",
+  "entity": null,
+  "artifact": {
+    "path": null,
+    "sha256": null,
+    "source_ref": null,
+    "access_restrictions": null,
+    "exporter": null,
+    "timestamp": null,
+    "request_id": null,
+    "response_id": null,
+    "prompt": {
+      "start": null,
+      "end": null,
+      "sha256": null
+    },
+    "output": {
+      "start": null,
+      "end": null,
+      "sha256": null
+    }
+  },
+  "generation": {
+    "model_family": null,
+    "exact_model_version": null,
+    "temperature": null,
+    "settings_evidence_ref": null
+  },
+  "observation": {
+    "assertion": null,
+    "failure_class": null,
+    "expected_verdict": null,
+    "rationale": null,
+    "snapshot_sha256": null,
+    "snapshot_pointer": null,
+    "inheritance_chain": [],
+    "source_span_ref": null
+  },
+  "review": {
+    "curator": null,
+    "decision": "pending",
+    "rationale": null,
+    "independent_reviewer": null,
+    "independent_decision": "pending",
+    "independent_rationale": null
+  }
+}

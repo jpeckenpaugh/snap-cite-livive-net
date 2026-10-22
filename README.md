@@ -34,3 +34,12 @@ not mined agent failures, not a six-fixture suite, and not official API evidence
 The upstream candidate is inspected locally and deliberately not redistributed
 pending provenance/redistribution review. Reports do not prove syntax, typing,
 access permissions, writability, constructibility or runtime behavior.
+
+## Offline fixture intake
+
+Use the [intake guide](docs/intake.md) and
+[blank record template](examples/intake-record-template.json) for authorized
+original exports. `python3 -m snapcite.intake --artifact-root ROOT RECORD.json`
+checks completeness and local byte integrity separately from recorded admission
+and per-entity 3/2/1 coverage. It never authenticates provenance or opens the
+blocked development gate.

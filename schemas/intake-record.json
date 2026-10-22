@@ -1,0 +1,278 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version",
+    "fixture_id",
+    "origin",
+    "entity",
+    "artifact",
+    "generation",
+    "observation",
+    "review"
+  ],
+  "properties": {
+    "schema_version": {
+      "const": "intake-1"
+    },
+    "fixture_id": {
+      "type": "string",
+      "minLength": 1,
+      "pattern": "\\S"
+    },
+    "origin": {
+      "enum": [
+        "genuine-recorded-output",
+        "authored-test"
+      ]
+    },
+    "entity": {
+      "type": "string",
+      "minLength": 1,
+      "pattern": "\\S"
+    },
+    "artifact": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "path",
+        "sha256",
+        "source_ref",
+        "access_restrictions",
+        "exporter",
+        "timestamp",
+        "request_id",
+        "response_id",
+        "prompt",
+        "output"
+      ],
+      "properties": {
+        "path": {
+          "type": "string",
+          "minLength": 1,
+          "pattern": "\\S"
+        },
+        "sha256": {
+          "type": "string",
+          "pattern": "^[0-9a-f]{64}$"
+        },
+        "source_ref": {
+          "type": "string",
+          "minLength": 1,
+          "pattern": "\\S"
+        },
+        "access_restrictions": {
+          "type": "string",
+          "minLength": 1,
+          "pattern": "\\S"
+        },
+        "exporter": {
+          "type": "string",
+          "minLength": 1,
+          "pattern": "\\S"
+        },
+        "timestamp": {
+          "type": "string",
+          "minLength": 1,
+          "pattern": "\\S"
+        },
+        "request_id": {
+          "type": "string",
+          "minLength": 1,
+          "pattern": "\\S"
+        },
+        "response_id": {
+          "type": "string",
+          "minLength": 1,
+          "pattern": "\\S"
+        },
+        "prompt": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "start",
+            "end",
+            "sha256"
+          ],
+          "properties": {
+            "start": {
+              "type": "integer",
+              "minimum": 0
+            },
+            "end": {
+              "type": "integer",
+              "minimum": 1
+            },
+            "sha256": {
+              "type": "string",
+              "pattern": "^[0-9a-f]{64}$"
+            }
+          }
+        },
+        "output": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "start",
+            "end",
+            "sha256"
+          ],
+          "properties": {
+            "start": {
+              "type": "integer",
+              "minimum": 0
+            },
+            "end": {
+              "type": "integer",
+              "minimum": 1
+            },
+            "sha256": {
+              "type": "string",
+              "pattern": "^[0-9a-f]{64}$"
+            }
+          }
+        }
+      }
+    },
+    "generation": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "model_family",
+        "exact_model_version",
+        "temperature",
+        "settings_evidence_ref"
+      ],
+      "properties": {
+        "model_family": {
+          "type": "string",
+          "minLength": 1,
+          "pattern": "\\S"
+        },
+        "exact_model_version": {
+          "type": "string",
+          "minLength": 1,
+          "pattern": "\\S"
+        },
+        "temperature": {
+          "type": "number"
+        },
+        "settings_evidence_ref": {
+          "type": "string",
+          "minLength": 1,
+          "pattern": "\\S"
+        }
+      }
+    },
+    "observation": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "assertion",
+        "failure_class",
+        "expected_verdict",
+        "rationale",
+        "snapshot_sha256",
+        "snapshot_pointer",
+        "inheritance_chain",
+        "source_span_ref"
+      ],
+      "properties": {
+        "assertion": {
+          "type": "string",
+          "minLength": 1,
+          "pattern": "\\S"
+        },
+        "failure_class": {
+          "type": "string",
+          "minLength": 1,
+          "pattern": "\\S"
+        },
+        "expected_verdict": {
+          "enum": [
+            "green",
+            "yellow",
+            "red"
+          ]
+        },
+        "rationale": {
+          "type": "string",
+          "minLength": 1,
+          "pattern": "\\S"
+        },
+        "snapshot_sha256": {
+          "type": "string",
+          "pattern": "^[0-9a-f]{64}$"
+        },
+        "snapshot_pointer": {
+          "type": "string",
+          "minLength": 1,
+          "pattern": "\\S"
+        },
+        "inheritance_chain": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "minLength": 1,
+            "pattern": "\\S"
+          },
+          "minItems": 1
+        },
+        "source_span_ref": {
+          "type": "string",
+          "minLength": 1,
+          "pattern": "\\S"
+        }
+      }
+    },
+    "review": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "curator",
+        "decision",
+        "rationale",
+        "independent_reviewer",
+        "independent_decision",
+        "independent_rationale"
+      ],
+      "properties": {
+        "curator": {
+          "type": "string",
+          "minLength": 1,
+          "pattern": "\\S"
+        },
+        "decision": {
+          "enum": [
+            "pending",
+            "accepted",
+            "rejected"
+          ]
+        },
+        "rationale": {
+          "type": "string",
+          "minLength": 1,
+          "pattern": "\\S"
+        },
+        "independent_reviewer": {
+          "type": "string",
+          "minLength": 1,
+          "pattern": "\\S"
+        },
+        "independent_decision": {
+          "enum": [
+            "pending",
+            "accepted",
+            "rejected"
+          ]
+        },
+        "independent_rationale": {
+          "type": "string",
+          "minLength": 1,
+          "pattern": "\\S"
+        }
+      }
+    }
+  }
+}
