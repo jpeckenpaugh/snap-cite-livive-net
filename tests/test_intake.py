@@ -57,7 +57,7 @@ class IntakeTests(unittest.TestCase):
             r=copy.deepcopy(self.record); r.update(fixture_id=f'AUTHORED-BRANCH-{i}',origin='genuine-recorded-output')
             r['observation']['expected_verdict']=color
             raw=f'prompt\noutput-{i}'.encode(); path=f'raw-{i}.txt'; (self.root/path).write_bytes(raw)
-            r['artifact'].update(path=path,sha256=hashlib.sha256(raw).hexdigest())
+            r['artifact'].update(path=path,sha256=hashlib.sha256(raw).hexdigest(),response_id=f'test-response-{i}')
             r['artifact']['output'].update(end=len(raw),sha256=hashlib.sha256(raw[7:]).hexdigest())
             records.append(r)
         report=validate_records(records,self.root)
@@ -88,6 +88,49 @@ class IntakeTests(unittest.TestCase):
         self.assertEqual(report['coverage']['Part']['recorded_admitted']['green'],1)
         self.assertEqual(report['coverage']['Instance']['recorded_admitted']['green'],1)
         self.assertFalse(report['coverage']['Instance']['exact_3_2_1'])
+    def test_repackaged_six_do_not_inflate_coverage(self):
+        records=[]
+        for i,color in enumerate(['green']*3+['yellow']*2+['red']):
+            r=copy.deepcopy(self.record)
+            r.update(origin='genuine-recorded-output',fixture_id=f'AUTHORED-REPACK-{i}')
+            raw=b'x'*i+b'prompt\noutput'; path=f'wrap{i}'
+            (self.root/path).write_bytes(raw)
+            r['artifact'].update(path=path,sha256=hashlib.sha256(raw).hexdigest())
+            r['artifact']['prompt'].update(start=i,end=i+6)
+            r['artifact']['output'].update(start=i+7,end=i+13)
+            r['observation']['expected_verdict']=color
+            records.append(r)
+        report=validate_records(records,self.root)
+        self.assertEqual(report['coverage']['Part']['recorded_admitted'],dict(green=1,yellow=0,red=0))
+        self.assertFalse(report['coverage']['Part']['exact_3_2_1'])
+        self.assertEqual(sum(r['complete'] for r in report['records']),1)
+
+    def test_conflicting_source_identity_blocks_all_in_either_order(self):
+        a=copy.deepcopy(self.record); a['origin']='genuine-recorded-output'
+        b=copy.deepcopy(a); b['fixture_id']='AUTHORED-CONFLICT'
+        raw=b'prompt\nchange'; (self.root/'conflict').write_bytes(raw)
+        b['artifact'].update(path='conflict',sha256=hashlib.sha256(raw).hexdigest())
+        b['artifact']['output']['sha256']=hashlib.sha256(raw[7:]).hexdigest()
+        for records in ([a,b],[b,a]):
+            report=validate_records(records,self.root)
+            self.assertTrue(all(not r['complete'] for r in report['records']))
+            self.assertTrue(all('conflicting reused' in r['errors'][0] for r in report['records']))
+            self.assertEqual(report['coverage']['Part']['recorded_admitted']['green'],0)
+
+    def test_integral_float_offsets_preserve_batch_cli_report(self):
+        r=copy.deepcopy(self.record)
+        for span in ('prompt','output'):
+            for bound in ('start','end'):
+                r['artifact'][span][bound]=float(r['artifact'][span][bound])
+        p=self.root/'float.json'; p.write_text(json.dumps(r))
+        q=self.root/'missing.json'; q.write_text('{}')
+        result=subprocess.run([sys.executable,'-m','snapcite.intake','--artifact-root',str(self.root),str(p),str(q)],capture_output=True,text=True)
+        self.assertEqual(result.returncode,1,result.stderr)
+        report=json.loads(result.stdout)
+        self.assertTrue(report['records'][0]['complete'])
+        self.assertFalse(report['records'][1]['complete'])
+        self.assertEqual(report['development_gate'],'blocked')
+
     def test_cli_exit_codes(self):
         p=self.root/'record.json'
         def run():

@@ -51,7 +51,8 @@ def inspect(record, root):
                 errors.append('/artifact/sha256: raw artifact hash mismatch')
             for name in ('prompt', 'output'):
                 span = a[name]
-                start, end = span['start'], span['end']
+                # JSON Schema integers include integral floats (for example 7.0).
+                start, end = int(span['start']), int(span['end'])
                 if not 0 <= start < end <= len(raw):
                     errors.append('/artifact/' + name + ': invalid byte span')
                 elif hashlib.sha256(raw[start:end]).hexdigest() != span['sha256']:
@@ -80,11 +81,24 @@ def validate_records(records, root):
         if isinstance(result['fixture_id'],str) and result['fixture_id'] in duplicates:
             result.update(complete=False, admission='blocked-incomplete')
             result['errors'].append('/fixture_id: duplicate fixture ID')
-    seen = set()
+    # Container hashes/offsets identify packaging, not source observations.
+    groups = {}
     for record, result in zip(records, results):
         if result['complete']:
             a = record['artifact']
-            identity = (record['entity'], a['sha256'], a['output']['start'], a['output']['end'])
+            source = (a['source_ref'], a['request_id'], a['response_id'])
+            groups.setdefault(source, []).append((record, result))
+    for group in groups.values():
+        outputs = {r['artifact']['output']['sha256'] for r, _ in group}
+        if len(outputs) > 1:
+            # No first-wins admission for conflicting source identity claims.
+            for _, result in group:
+                result.update(complete=False, admission='blocked-incomplete')
+                result['errors'].append('/artifact/output: conflicting reused source observation identity')
+            continue
+        seen = set()
+        for record, result in group:
+            identity = record['entity']
             if identity in seen:
                 result.update(complete=False, admission='blocked-incomplete')
                 result['errors'].append('/artifact/output: duplicate entity observation')
